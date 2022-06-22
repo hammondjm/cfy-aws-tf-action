@@ -1,23 +1,25 @@
 name: trigger terraform apply on commit
 on:
   push:
-    branches: [master]
-    paths:
-      - 'template/*'
 
 jobs:
+
   terraform_apply:
     runs-on: ubuntu-latest
-    environment: manager-oversight
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - id: get_ref_repo
+        run: |
+          echo "::set-output name=repo_link::$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/archive/$GITHUB_REF.zip"
 
       - name: Execute terraform apply
         id: terraform_apply
         uses: cloudify-cosmo/terraform-apply-action@v1.2
         with:
           environment-name: "terraform-test"
+          module-file: ${{steps.get_ref_repo.outputs.repo_link}}
           module-source-path: template/modules/public_vm
           variables-file: variables.yaml
 
