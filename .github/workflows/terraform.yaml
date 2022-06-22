@@ -1,0 +1,29 @@
+name: trigger terraform apply on commit
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'template/*'
+
+jobs:
+  terraform_apply:
+    runs-on: ubuntu-latest
+    environment: manager-oversight
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Execute terraform apply
+        id: terraform_apply
+        uses: cloudify-cosmo/terraform-apply-action@v1.2
+        with:
+          environment-name: "terraform-test"
+          module-source-path: template/modules/public_vm
+          variables-file: variables.yaml
+
+env:
+  CLOUDIFY_HOST: ${{ secrets.CLOUDIFY_HOST }}
+  CLOUDIFY_USERNAME: ${{ secrets.CLOUDIFY_USERNAME }}
+  CLOUDIFY_PASSWORD: ${{ secrets.CLOUDIFY_PASSWORD }}
+  CLOUDIFY_TENANT: ${{ secrets.CLOUDIFY_TENANT }}
+  CLOUDIFY_SSL: ${{ secrets.CLOUDIFY_SSL }}
